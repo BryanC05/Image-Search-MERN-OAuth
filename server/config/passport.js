@@ -4,7 +4,6 @@ import { Strategy as FacebookStrategy } from "passport-facebook"
 import { Strategy as GitHubStrategy } from "passport-github2"
 import User from "../models/User.js"
 
-// Google Strategy
 passport.use(
   new GoogleStrategy(
     {

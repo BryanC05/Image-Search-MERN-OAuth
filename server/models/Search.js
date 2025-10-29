@@ -19,7 +19,7 @@ const searchSchema = new mongoose.Schema({
       downloads: Number,
     },
   ],
-  selectedImages: [String], // Array of image IDs
+  selectedImages: [String],
   createdAt: {
     type: Date,
     default: Date.now,
