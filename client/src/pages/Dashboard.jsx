@@ -15,7 +15,6 @@ function Dashboard({ user }) {
   const [selectedImages, setSelectedImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [currentQuery, setCurrentQuery] = useState("")
-  const [currentSearchId, setCurrentSearchId] = useState(null)
   const [showHistory, setShowHistory] = useState(false)
 
   useEffect(() => {
@@ -25,8 +24,8 @@ function Dashboard({ user }) {
 
   const fetchTopSearches = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/search/top-searches")
-      setTopSearches(response.data)
+      const response = await axios.get("/api/top-searches")
+      setTopSearches(response.data?.topSearches || response.data || [])
     } catch (error) {
       console.error("Failed to fetch top searches:", error)
     }
@@ -34,10 +33,8 @@ function Dashboard({ user }) {
 
   const fetchSearchHistory = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/search/history", {
-        withCredentials: true,
-      })
-      setSearchHistory(response.data)
+      const response = await axios.get("/api/history")
+      setSearchHistory(response.data?.searches || response.data || [])
     } catch (error) {
       console.error("Failed to fetch search history:", error)
     }
@@ -48,10 +45,17 @@ function Dashboard({ user }) {
     setCurrentQuery(query)
     setShowHistory(false)
     try {
-      const response = await axios.post("http://localhost:5000/api/search/images", { query }, { withCredentials: true })
-      setImages(response.data.results)
+      const response = await axios.post("/api/search", { term: query })
+      const raw = response.data?.results || []
+      const normalized = raw.map((it) => ({
+        id: it.id,
+        url: it.urls?.regular || it.urls?.small || it.url,
+        description: it.alt_description || it.description || "",
+        likes: typeof it.likes === "number" ? it.likes : 0,
+        downloads: typeof it.downloads === "number" ? it.downloads : 0,
+      }))
+      setImages(normalized)
       setSelectedImages([])
-      // Refresh history after search
       fetchSearchHistory()
       fetchTopSearches()
     } catch (error) {
@@ -65,27 +69,28 @@ function Dashboard({ user }) {
     setSelectedImages((prev) => (prev.includes(imageId) ? prev.filter((id) => id !== imageId) : [...prev, imageId]))
   }
 
-  const handleSaveSelection = async () => {
-    if (!currentSearchId || selectedImages.length === 0) return
-
-    try {
-      await axios.post(
-        "http://localhost:5000/api/search/save-selection",
-        { searchId: currentSearchId, selectedImages },
-        { withCredentials: true },
-      )
-      alert("Selection saved successfully!")
-    } catch (error) {
-      console.error("Failed to save selection:", error)
-    }
-  }
-
   const handleHistoryClick = (historyItem) => {
     setCurrentQuery(historyItem.query)
-    setImages(historyItem.results)
+    const normalized = (historyItem.results || []).map((it) => ({
+      id: it.id,
+      url: it.urls?.regular || it.urls?.small || it.url,
+      description: it.alt_description || it.description || "",
+      likes: typeof it.likes === "number" ? it.likes : 0,
+      downloads: typeof it.downloads === "number" ? it.downloads : 0,
+    }))
+    setImages(normalized)
     setSelectedImages(historyItem.selectedImages || [])
-    setCurrentSearchId(historyItem._id)
     setShowHistory(false)
+  }
+
+  if (!user) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-header">
+          <h2>Please log in to search and view history.</h2>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -113,12 +118,7 @@ function Dashboard({ user }) {
               <h3>Results for "{currentQuery}"</h3>
             </div>
             <div className="results-actions">
-              <span className="selected-count">{selectedImages.length} selected</span>
-              {selectedImages.length > 0 && (
-                <button className="save-btn" onClick={handleSaveSelection}>
-                  Save Selection
-                </button>
-              )}
+              <span className="selected-count">Selected: {selectedImages.length} images</span>
             </div>
           </div>
           <ImageGrid images={images} selectedImages={selectedImages} onSelectImage={handleImageSelect} />

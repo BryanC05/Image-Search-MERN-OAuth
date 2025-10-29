@@ -14,8 +14,8 @@ function SearchHistory({ history, onSelectHistory }) {
             <div key={item._id} className="history-item" onClick={() => onSelectHistory(item)}>
               <div className="history-query">{item.query}</div>
               <div className="history-meta">
-                <span className="history-count">{item.results.length} images</span>
-                <span className="history-date">{new Date(item.createdAt).toLocaleDateString()}</span>
+                <span className="history-count">{(item.results || []).length} images</span>
+                <span className="history-date">{new Date(item.createdAt).toLocaleString()}</span>
               </div>
             </div>
           ))}

@@ -22,7 +22,7 @@ export default function SearchHistory() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch("/api/search/history")
+        const response = await fetch("/api/history")
         const data = await response.json()
         setSearches(data.searches || [])
       } catch (error) {
@@ -38,7 +38,7 @@ export default function SearchHistory() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Spinner className="w-8 h-8 text-purple-500" />
+        <Spinner className="w-8 h-8 text-accent" />
       </div>
     )
   }
@@ -56,12 +56,12 @@ export default function SearchHistory() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">Search History</h2>
+        <h2 className="text-2xl font-bold text-accent">Search History</h2>
         {searches.length > 0 && (
           <Button
             variant="outline"
             size="sm"
-            className="text-red-400 border-red-500/50 hover:bg-red-500/10 bg-transparent"
+            className="text-accent border-accent-40 hover:bg-secondary-70 bg-transparent"
             onClick={clearHistory}
           >
             Clear History
@@ -69,24 +69,24 @@ export default function SearchHistory() {
         )}
       </div>
       {searches.length === 0 ? (
-        <Card className="p-8 text-center bg-slate-800 border-purple-500/20">
-          <p className="text-slate-400">No search history yet. Start searching!</p>
+        <Card className="p-8 text-center bg-secondary border-accent-10">
+          <p className="text-accent-60">No search history yet. Start searching!</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {searches.map((search) => (
             <Card
               key={search._id}
-              className="p-4 bg-slate-800 border-purple-500/20 hover:border-purple-500/50 transition-all"
+              className="p-4 bg-secondary border-accent-10 hover:border-accent-40 transition-all"
             >
-              <h3 className="font-semibold text-white mb-2 capitalize">{search.query}</h3>
-              <p className="text-sm text-slate-400 mb-3">
-                {search.imageCount} images • {new Date(search.createdAt).toLocaleDateString()}
+              <h3 className="font-semibold text-accent mb-2 capitalize">{search.query}</h3>
+              <p className="text-sm text-accent-60 mb-3">
+                {search.imageCount} images • {new Date(search.createdAt).toLocaleString()}
               </p>
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-purple-400 border-purple-500/50 hover:bg-purple-500/10 bg-transparent"
+                className="w-full text-accent border-accent-40 hover:bg-secondary-70 bg-transparent"
                 onClick={() => {
                   const selected = (search.selectedImages || []).join(",")
                   const url = selected

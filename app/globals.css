@@ -123,3 +123,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* App theme (60/30/10) */
+:root {
+	--app-primary: #0C2B4E;
+	--app-secondary: #1A3D64;
+	--app-accent: #F4F4F4;
+}
+
+/* Utility classes mapped to the palette */
+.bg-primary { background-color: var(--app-primary); }
+.bg-secondary { background-color: var(--app-secondary); }
+.bg-secondary-70 { background-color: rgba(26, 61, 100, 0.7); }
+.bg-primary-80 { background-color: rgba(12, 43, 78, 0.8); }
+
+.text-accent { color: var(--app-accent); }
+.text-accent-80 { color: rgba(244, 244, 244, 0.8); }
+.text-accent-60 { color: rgba(244, 244, 244, 0.6); }
+
+.border-accent-10 { border-color: rgba(244, 244, 244, 0.1); }
+.border-accent-40 { border-color: rgba(244, 244, 244, 0.4); }
+
+.hover\:bg-secondary-70:hover { background-color: rgba(26, 61, 100, 0.7); }
+.hover\:bg-accent-90:hover { background-color: rgba(244, 244, 244, 0.9); }

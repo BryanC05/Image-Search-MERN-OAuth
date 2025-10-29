@@ -12,10 +12,10 @@ function TopSearches({ searches, onSearch }) {
             key={search._id}
             className="search-tag"
             onClick={() => onSearch(search.query)}
-            title={`${search.count} searches`}
+            title={`${search.count ?? search.total} searches`}
           >
             <span className="tag-text">{search.query}</span>
-            <span className="search-count">{search.count}</span>
+            <span className="search-count">{search.count ?? search.total}</span>
           </button>
         ))}
       </div>

@@ -1,239 +1,353 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
-import SearchHistory from "@/components/search-history"
-import TopSearches from "@/components/top-searches"
-import ImageGrid from "@/components/image-grid"
-import { useRouter, useSearchParams } from "next/navigation"
+import type React from "react";
+import { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import SearchHistory from "@/components/search-history";
+import TopSearches from "@/components/top-searches";
+import ImageGrid from "@/components/image-grid";
+import { useRouter, useSearchParams } from "next/navigation";
+import { SaveIcon, ArrowUp } from "lucide-react";
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [images, setImages] = useState<any[]>([])
-  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set())
-  const [loading, setLoading] = useState(false)
-  const [resultCount, setResultCount] = useState<number | null>(null)
-  const [showHistory, setShowHistory] = useState(false)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [images, setImages] = useState<any[]>([]);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [resultCount, setResultCount] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<any[]>([]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
+  const handleSearch = useCallback(
+    async (query: string, page = 1) => {
+      if (!query.trim()) return;
 
-    setLoading(true)
-    setSelectedImages(new Set())
-
-    try {
-      const response = await fetch(`/api/search`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ term: searchQuery }),
-      })
-      const data = await response.json()
-      setImages(data.results || [])
-      setResultCount(typeof data.count === "number" ? data.count : (data.results?.length || 0))
-    } catch (error) {
-      console.error("Search failed:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Run a search if a query param (?q=...) is present
-  useEffect(() => {
-    const q = searchParams.get("q") || ""
-    const selectedParam = searchParams.get("selected") || ""
-    const selectedIds = selectedParam ? new Set(selectedParam.split(",")) : new Set<string>()
-    if (q && q !== searchQuery) {
-      setSearchQuery(q)
-      // Trigger search without needing form submit
-      ;(async () => {
-        setLoading(true)
-        setSelectedImages(new Set())
-        try {
-          const response = await fetch(`/api/search`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ term: q }),
-          })
-          const data = await response.json()
-          setImages(data.results || [])
-          setResultCount(typeof data.count === "number" ? data.count : (data.results?.length || 0))
-          if (selectedIds.size > 0) {
-            // Only keep selections that exist in current results
-            const resultIds = new Set((data.results || []).map((r: any) => r.id))
-            const filtered = Array.from(selectedIds).filter((id) => resultIds.has(id))
-            setSelectedImages(new Set(filtered))
-          }
-          setShowHistory(false)
-        } catch (error) {
-          console.error("Search failed:", error)
-        } finally {
-          setLoading(false)
-        }
-      })()
-    } else if (!q) {
-      // When landing on dashboard without a query, ensure UI is reset
-      if (searchQuery || images.length > 0 || selectedImages.size > 0 || resultCount !== null) {
-        setSearchQuery("")
-        setImages([])
-        setSelectedImages(new Set())
-        setResultCount(null)
-        setShowHistory(false)
+      if (page === 1) {
+        setLoading(true);
+        setImages([]);
+        setSelectedImages(new Set());
+        setResultCount(null);
+      } else {
+        setLoadingMore(true);
       }
+      setCurrentPage(page);
+      setSearchQuery(query);
+
+      try {
+        const url =
+          page === 1
+            ? `/api/search`
+            : `/api/search?q=${encodeURIComponent(query)}&page=${page}`; //
+        const method = page === 1 ? "POST" : "GET"; //
+        const body =
+          page === 1 ? JSON.stringify({ term: query }) : undefined; //
+
+        const response = await fetch(url, {
+          method: method,
+          headers: page === 1 ? { "Content-Type": "application/json" } : {},
+          body: body,
+        });
+        const data = await response.json();
+
+        if (page === 1) {
+          setImages(data.results || []); //
+          setResultCount(
+            typeof data.count === "number"
+              ? data.count
+              : data.results?.length || 0, //
+          );
+          setTotalPages(data.total_pages || 1); //
+          router.push(`/dashboard?q=${encodeURIComponent(query)}`, {
+            scroll: false,
+          });
+        } else {
+          const newImages = (data.results || []).filter( //
+            (newImg: any) =>
+              !images.some((existingImg) => existingImg.id === newImg.id),
+          );
+          setImages((prevImages) => [...prevImages, ...newImages]);
+        }
+        setShowHistory(false);
+      } catch (error) {
+        console.error("Search failed:", error);
+      } finally {
+        if (page === 1) {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
+        }
+      }
+    },
+    [router, images],
+  );
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(searchQuery, 1);
+  };
+
+  const handleLoadMore = () => {
+    if (!loadingMore && currentPage < totalPages) {
+      handleSearch(searchQuery, currentPage + 1);
     }
-  }, [searchParams])
+  };
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q && q !== searchQuery) {
+      handleSearch(q, 1);
+    } else if (!q && images.length > 0) {
+      setSearchQuery("");
+      setImages([]);
+      setSelectedImages(new Set());
+      setResultCount(null);
+      setCurrentPage(1);
+      setTotalPages(1);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (typeof window !== "undefined") {
+        setShowScrollTop(window.scrollY > 400);
+      }
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        const res = await fetch("/api/history");
+        const data = await res.json();
+        setRecentSearches(Array.isArray(data.searches) ? data.searches : []);
+      } catch (_) {}
+    };
+    fetchRecent();
+  }, []);
 
   const handleImageToggle = (imageId: string) => {
-    const newSelected = new Set(selectedImages)
+    const newSelected = new Set(selectedImages);
     if (newSelected.has(imageId)) {
-      newSelected.delete(imageId)
+      newSelected.delete(imageId);
     } else {
-      newSelected.add(imageId)
+      newSelected.add(imageId);
     }
-    setSelectedImages(newSelected)
-  }
+    setSelectedImages(newSelected);
+  };
 
   const handleSaveSearch = async () => {
-    if (!searchQuery.trim() || selectedImages.size === 0) return
+    if (!searchQuery.trim() || selectedImages.size === 0) return;
 
     try {
       await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: searchQuery,
-          imageCount: images.length,
-          selectedImages: Array.from(selectedImages),
+          term: searchQuery,
+           selectedImages: Array.from(selectedImages),
         }),
-      })
-
-      setSelectedImages(new Set())
-      setShowHistory(true)
+      });
+      setSelectedImages(new Set()); 
+      setShowHistory(true); 
+      alert("Selection saved!"); 
     } catch (error) {
-      console.error("Failed to save search:", error)
+      console.error("Failed to save selection:", error);
+      alert("Failed to save selection.");
     }
-  }
+  };
+
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
-    } catch (e) {
-      // no-op
-    }
-    router.push("/login")
-  }
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
+    router.push("/login");
+  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="bg-slate-800/50 border-b border-purple-500/20 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">Image Search</h1>
-          <div className="flex gap-2">
+    <main className="min-h-screen bg-primary pb-20"> 
+      <header className="bg-secondary border-b border-accent-10 sticky top-0 z-50"> 
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between"> 
+          <h1 className="text-2xl font-bold text-accent">Image Search</h1> 
+          <div className="flex gap-2"> 
             <Button
               variant="outline"
               onClick={() => {
-                if (showHistory) {
-                  setSearchQuery("")
-                  setImages([])
-                  setSelectedImages(new Set())
-                  setResultCount(null)
+                setShowHistory(!showHistory);
+                if (!showHistory) {
+                  router.push("/dashboard", { scroll: false });
                 }
-                setShowHistory(!showHistory)
               }}
-              className="text-white border-purple-500/50 hover:bg-purple-500/10"
-            >
-              {showHistory ? "Back to Search" : "View History"}
+              className="text-accent border-accent-40 hover:bg-secondary-70 bg-transparent"
+            > 
+              {showHistory ? "Back to Search" : "View History"} 
             </Button>
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="text-white border-purple-500/50 hover:bg-purple-500/10 bg-transparent"
-            >
-              Logout
+              className="text-accent border-accent-40 hover:bg-secondary-70 bg-transparent"
+            > 
+              Logout 
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Top Searches banner */}
-        <div className="mb-8">
-          <TopSearches />
-        </div>
+      <div className="container mx-auto px-4 py-8"> 
+        
+        {!showHistory && (
+          <div className="mb-8"> 
+            <TopSearches /> 
+          </div>
+        )}
+
         {showHistory ? (
-          <div className="space-y-8">
-            <SearchHistory />
+          <div className="space-y-8"> 
+            <SearchHistory /> 
           </div>
         ) : (
-          <div className="space-y-8">
-            {/* Search Bar */}
-            <Card className="p-6 bg-slate-800 border-purple-500/20">
-              <form onSubmit={handleSearch} className="flex gap-2">
+          <div className="space-y-8"> 
+            
+            <Card className="p-6 bg-secondary border-accent-10"> 
+              <form onSubmit={handleFormSubmit} className="flex gap-2"> 
                 <Input
                   type="text"
                   placeholder="Search for images..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-slate-700 border-purple-500/30 text-white placeholder:text-slate-400"
-                />
-                <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
-                  {loading ? <Spinner className="w-4 h-4" /> : "Search"}
+                  className="flex-1 bg-primary border-accent-40 text-accent placeholder:text-accent-60"
+                /> 
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-accent hover:bg-accent-90 text-primary"
+                > 
+                  {loading ? <Spinner className="w-4 h-4" /> : "Search"} 
                 </Button>
               </form>
             </Card>
 
-            {/* Search summary & multi-select counter */}
-            {images.length > 0 && (
-              <div className="flex items-center justify-between">
-                <p className="text-slate-300">
-                  You searched for <span className="text-white font-semibold">{searchQuery}</span>
-                  {typeof resultCount === "number" && (
-                    <> — {resultCount} results</>
-                  )}
-                </p>
-                <p className="text-slate-300">Selected: {selectedImages.size} images</p>
+            
+            {loading && (
+              <div className="flex justify-center py-12"> 
+                <Spinner className="w-8 h-8 text-accent" /> 
               </div>
             )}
 
-            {/* Image Grid */}
-            {images.length > 0 && (
+            
+            {!loading && images.length > 0 && (
               <>
-                <ImageGrid images={images} selectedImages={selectedImages} onImageToggle={handleImageToggle} />
+                
+                <div className="flex items-center justify-between"> 
+                  <p className="text-accent-80"> 
+                    Results for{" "} 
+                    <span className="text-accent font-semibold"> 
+                      {searchQuery} 
+                    </span>
+                    {typeof resultCount === "number" && (
+                      <> [{resultCount}] total results</>
+                    )} 
+                  </p>
+                  {selectedImages.size > 0 && (
+                    <p className="text-accent-80" aria-live="polite"> 
+                      Selected: {selectedImages.size} image{selectedImages.size === 1 ? "" : "s"} 
+                    </p>
+                  )}
+                </div>
 
-                {selectedImages.size > 0 && (
-                  <div className="flex justify-center">
-                    <Button onClick={handleSaveSearch} className="bg-green-600 hover:bg-green-700 text-white px-8">
-                      Save {selectedImages.size} Selected Image{selectedImages.size !== 1 ? "s" : ""}
+                
+                <ImageGrid
+                  images={images}
+                  selectedImages={selectedImages}
+                  onImageToggle={handleImageToggle}
+                /> 
+
+                
+                {!loadingMore && currentPage < totalPages && (
+                  <div className="flex justify-center mt-6"> 
+                    <Button
+                      onClick={handleLoadMore}
+                      variant="outline"
+                      className="text-accent border-accent-40 hover:bg-secondary-70 bg-transparent px-8"
+                    > 
+                      See More 
                     </Button>
                   </div>
                 )}
+
+                
+                {loadingMore && (
+                  <div className="flex justify-center py-6"> 
+                    <Spinner className="w-6 h-6 text-accent" /> 
+                  </div>
+                )}
+
+                {recentSearches.length > 0 && (
+                  <Card className="mt-8 p-4 bg-secondary border-accent-10">
+                    <div className="mb-3 flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-accent">Recent Searches</h3>
+                    </div>
+                    <ul className="divide-y divide-accent-10">
+                      {recentSearches.slice(0, 10).map((s: any) => (
+                        <li key={s._id} className="py-2 flex items-center justify-between">
+                          <span className="text-accent-80 capitalize">{s.query}</span>
+                          <span className="text-accent-60 text-sm">{new Date(s.createdAt).toLocaleString()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+
               </>
             )}
 
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center py-12">
-                <Spinner className="w-8 h-8 text-purple-500" />
+            {!loading && images.length === 0 && searchQuery && (
+              <div className="text-center py-12"> 
+                <p className="text-accent-60"> 
+                  No images found for "{searchQuery}". Try a different search. 
+                </p>
               </div>
             )}
 
-            {/* Empty State */}
-            {!loading && images.length === 0 && searchQuery && (
-              <div className="text-center py-12">
-                <p className="text-slate-400">No images found. Try a different search.</p>
+            {!loading && images.length === 0 && !searchQuery && !showHistory && (
+              <div className="text-center py-12"> 
+                <p className="text-accent-60"> 
+                  Enter a search term above to find images. 
+                </p>
               </div>
             )}
           </div>
         )}
       </div>
+      {showScrollTop && !showHistory && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            onClick={scrollToTop}
+            className="bg-secondary hover:bg-secondary-70 text-accent rounded-full shadow-lg p-3 h-auto"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
     </main>
-  )
+  );
 }

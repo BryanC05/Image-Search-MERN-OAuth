@@ -49,7 +49,7 @@ export default function TopSearches({ limit = 5 }: TopSearchesProps) {
     <div>
       <h2 className="text-2xl font-bold text-white mb-4">Popular Searches</h2>
       {searches.length === 0 ? (
-        <Card className="p-8 text-center bg-slate-800 border-purple-500/20">
+        <Card className="p-8 text-center bg-slate-800 border-blue-400">
           <p className="text-slate-400">No popular searches yet</p>
         </Card>
       ) : (
@@ -57,10 +57,10 @@ export default function TopSearches({ limit = 5 }: TopSearchesProps) {
           {searches.map((search) => (
             <Card
               key={search.id}
-              className="p-4 bg-slate-800 border-purple-500/20 hover:border-purple-500/50 transition-all text-center cursor-pointer group"
+              className="p-4 bg-slate-800 border-blue-400 hover:border-b-blue-400 transition-all text-center cursor-pointer group"
               onClick={() => router.push(`/dashboard?q=${encodeURIComponent(search.query)}`)}
             >
-              <p className="font-semibold text-white mb-2 capitalize group-hover:text-purple-400 transition-colors">
+              <p className="font-semibold text-white mb-2 capitalize group-hover:text-blue-400 transition-colors">
                 {search.query}
               </p>
               {typeof search.total_photos === "number" && (

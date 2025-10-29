@@ -22,11 +22,11 @@ export default function ImageGrid({ images, selectedImages, onImageToggle }: Ima
   }, [images])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {uniqueImages.map((image) => (
         <Card
           key={image.id}
-          className="overflow-hidden bg-slate-800 border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer group"
+          className="overflow-hidden bg-secondary border-accent-10 hover:border-accent-40 transition-all cursor-pointer group"
           onClick={() => onImageToggle(image.id)}
         >
           <div className="relative">
@@ -35,7 +35,7 @@ export default function ImageGrid({ images, selectedImages, onImageToggle }: Ima
               alt={image.alt_description || "Search result"}
               className="w-full h-48 object-cover group-hover:opacity-75 transition-opacity"
             />
-            <div className="absolute top-2 right-2 bg-slate-900/80 rounded-lg p-2">
+            <div className="absolute top-2 right-2 bg-primary-80 rounded-lg p-2">
               <Checkbox
                 checked={selectedImages.has(image.id)}
                 onChange={() => onImageToggle(image.id)}
@@ -44,8 +44,8 @@ export default function ImageGrid({ images, selectedImages, onImageToggle }: Ima
             </div>
           </div>
           <div className="p-3">
-            <p className="text-sm text-slate-300 line-clamp-2">{image.alt_description || "Untitled"}</p>
-            <p className="text-xs text-slate-500 mt-1">by {image.user?.name || "Unknown"}</p>
+            <p className="text-sm text-accent-80 line-clamp-2">{image.alt_description || "Untitled"}</p>
+            <p className="text-xs text-accent-60 mt-1">by {image.user?.name || "Unknown"}</p>
           </div>
         </Card>
       ))}

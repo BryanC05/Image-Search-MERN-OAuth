@@ -5,6 +5,12 @@
   animation: fadeIn 0.3s ease-in;
 }
 
+@media (min-width: 1280px) {
+  .image-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
