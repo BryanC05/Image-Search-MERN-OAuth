@@ -1,107 +1,145 @@
-# Image Search App - Setup Guide
+Image Search MERN + OAuth
+=================================
 
-This is a **Next.js full-stack application** that requires minimal setup. Everything runs in one place with no separate backend/frontend servers needed.
+A full-stack image search app with OAuth authentication, Unsplash integration, multi-select results, top searches, and per-user search history.
 
-## Quick Start (3 Steps)
+This repository contains both:
+- A Next.js app (in `app/` with API routes under `app/api/*`) that implements the full feature set
+- A Vite React client (in `client/`) that can be used with the Express server in `server/`
+- An Express + Passport.js server (in `server/`) that provides OAuth and REST APIs
 
-### Step 1: Add Environment Variables
+Features
+--------
+- OAuth login with Google, Facebook, GitHub (Passport.js)
+- Only authenticated users can search or view history
+- Search results fetched from Unsplash Search API
+- Multi-select grid with live “Selected: X images” counter
+- Top 5 searches across all users (banner)
+- Per-user search history with timestamps (local time)
 
-Create a `.env.local` file in the root directory and add your credentials:
+Folder Structure
+----------------
+```
+Image-Search-MERN-OAuth/
+  app/                 # Next.js application (App Router) + API routes
+    api/               # Next API endpoints (auth/session, search, history, top searches)
+    dashboard/         # Dashboard UI
+    login/             # OAuth login UI
+    globals.css        # Global styles (CSS variables / theme)
+  client/              # Vite React client (optional UI)
+    src/
+  server/              # Express + Passport.js back end (OAuth + REST)
+    routes/            # Express routes for auth/search
+    models/            # Mongoose models
+    config/passport.js # Passport strategies
+```
 
-# MongoDB Connection
-MONGODB_URI=mongodb+srv://becejob_db_user:<db_password>@cluster0.qyugg8m.mongodb.net/?appName=Cluster0
+MONGO_URI=mongodb://localhost:27017/image_search_oauth
+SESSION_SECRET=your-strong-session-secret
+BASE_URL=http://localhost:5000
 
-# Unsplash API Key (https://unsplash.com/developers)
-UNSPLASH_ACCESS_KEY=your-unsplash-access-key-here
+# Unsplash
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
-# OAuth - Google (https://console.cloud.google.com)
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 
-# OAuth - Facebook (https://developers.facebook.com)
-NEXT_PUBLIC_FACEBOOK_APP_ID=your-facebook-app-id
-FACEBOOK_APP_SECRET=your-facebook-app-secret
+# Facebook OAuth
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
+FACEBOOK_CALLBACK_URL=http://localhost:5000/api/auth/facebook/callback
 
-# OAuth - GitHub (get from https://github.com/settings/developers)
-NEXT_PUBLIC_GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
+# GitHub OAuth
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
+```
 
-# Auth Secret (generate a random string)
-AUTH_SECRET=your-random-secret-key-change-this-in-production
-NEXTAUTH_URL=http://localhost:3000
-\`\`\`
+For the Next.js app, define env in `.env.local` at the repo root:
+```
+# Unsplash for Next API
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
-### Step 2: Get Your API Keys
+# Session/auth (implementation specific)
+NEXTAUTH_SECRET=your_next_auth_like_secret_or_app_secret
+MONGODB_URI=mongodb://localhost:27017/image_search_oauth
+BASE_URL=http://localhost:3000
+```
 
-#### Unsplash API Key
-1. Go to [unsplash.com/developers](https://unsplash.com/developers)
-2. Sign up or log in
-3. Create a new application
-4. Copy your **Access Key**
-5. Paste it in `.env.local` as `UNSPLASH_ACCESS_KEY`
+Install & Run
+-------------
+Using the Next.js app (recommended)
+```
+pnpm install
+pnpm dev
+```
+- App: http://localhost:3000
+- API routes: http://localhost:3000/api/*
 
-#### Google OAuth
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials (Web application)
-5. Add `http://localhost:3000/api/auth/google` to authorized redirect URIs
-6. Copy Client ID and Client Secret
+Using the Express server + Vite client
+```
+cd server && npm install && npm run dev
+# Server: http://localhost:5000
 
-#### Facebook OAuth
-1. Go to [Facebook Developers](https://developers.facebook.com)
-2. Create a new app
-3. Add Facebook Login product
-4. In Settings > Basic, copy App ID and App Secret
-5. Add `http://localhost:3000/api/auth/facebook` to Valid OAuth Redirect URIs
+cd ../client && npm install && npm run dev
+# Client: http://localhost:5173
+```
 
-#### GitHub OAuth
-1. Go to [GitHub Settings > Developer settings](https://github.com/settings/developers)
-2. Create a new OAuth App
-3. Set Authorization callback URL to `http://localhost:3000/api/auth/github`
-4. Copy Client ID and Client Secret
+Update the client to call your server’s origin if not using the Next API. The current client has been aligned to call `/api/*` so it can be reverse-proxied by the Next app or served via the same origin.
 
-### Step 3: Run the App
-npm run dev
+API Endpoints
+-------------
+All endpoints require authentication unless stated otherwise.
 
-The app will start at `http://localhost:3000`
+POST /api/search
+- Body: `{ "term": "cats" }`
+- Behavior: Saves `{ userId, term, timestamp }` to MongoDB, calls Unsplash search, returns results.
 
-## Features
+Example:
+```
+curl -X POST http://localhost:3000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"term":"cats"}'
+```
 
-✅ **OAuth Authentication** - Sign in with Google, Facebook, or GitHub
-✅ **Image Search** - Search millions of images via Unsplash API
-✅ **Multi-Select Grid** - Select multiple images to save
-✅ **Search History** - View all your previous searches
-✅ **Top Searches** - See popular search terms
-✅ **MongoDB Integration** - All data persisted to your database
-✅ **No Installation Needed** - Everything runs in Next.js
+GET /api/top-searches
+- Returns top 5 most frequent terms across all users.
+```
+curl http://localhost:3000/api/top-searches
+```
 
-## Project Structure
+GET /api/history
+- Returns the logged-in user’s search history with timestamps.
+```
+curl http://localhost:3000/api/history
+```
 
-app/
-├── page.tsx             # Redirects to login/dashboard
-├── login/
-│   └── page.tsx         # OAuth login page
-├── dashboard/
-│   └── page.tsx         # Main search interface
-└── api/
-    ├── auth/
-    │   ├── login/       # Session creation
-    │   ├── google/      # Google OAuth callback
-    │   ├── facebook/    # Facebook OAuth callback
-    │   └── github/      # GitHub OAuth callback
-    └── search/
-        ├── route.ts     # Search & save endpoints
-        └── history/     # History & top searches
+Auth (server-side OAuth, typical patterns)
+- GET `/api/auth/google` → OAuth login
+- GET `/api/auth/facebook` → OAuth login
+- GET `/api/auth/github` → OAuth login
+- POST `/api/auth/logout` → Logout
 
-components/
-├── image-grid.tsx       # Image display with multi-select
-├── search-history.tsx   # User's search history
-└── top-searches.tsx     # Popular searches
+Frontend Behavior
+-----------------
+- Only authenticated users can access search/history. Unauthenticated users are prompted to log in.
+- Top Searches: banner at the top pulls from `/api/top-searches`.
+- Search: posts `{ term }` to `/api/search`, shows “Results for X — N results” and renders a 4-column grid (xl) with checkboxes.
+- Multi-Select Counter: shows “Selected: X images” above the grid; selection is tracked client-side.
+- History: shows local timestamps (`toLocaleString`) either below results or in the history view.
 
-lib/
-├── db.ts               # MongoDB connection
-├── auth.ts             # JWT authentication
-└── models.ts           # Database models
+Screenshots / Visual Proof
+--------------------------
+Place screenshots or GIFs under `public/` or in a `/docs` folder and reference them here.
+- OAuth login (Google/Facebook/GitHub)
+- Top Searches banner
+- Search results + multi-select
+- Search history section
 
-middleware.ts           # Route protection
+License
+-------
+MIT
+
+
