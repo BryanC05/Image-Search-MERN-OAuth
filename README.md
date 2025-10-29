@@ -56,7 +56,6 @@ GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
 ```
-
 For the Next.js app, define env in `.env.local` at the repo root:
 ```
 # Unsplash for Next API
@@ -72,8 +71,8 @@ Install & Run
 -------------
 Using the Next.js app (recommended)
 ```
-pnpm install
-pnpm dev
+npm install
+npm dev
 ```
 - App: http://localhost:3000
 - API routes: http://localhost:3000/api/*
@@ -81,39 +80,7 @@ pnpm dev
 Using the Express server + Vite client
 ```
 cd server && npm install && npm run dev
-# Server: http://localhost:5000
-
-cd ../client && npm install && npm run dev
-# Client: http://localhost:5173
-```
-
-Update the client to call your server’s origin if not using the Next API. The current client has been aligned to call `/api/*` so it can be reverse-proxied by the Next app or served via the same origin.
-
-API Endpoints
--------------
-All endpoints require authentication unless stated otherwise.
-
-POST /api/search
-- Body: `{ "term": "cats" }`
-- Behavior: Saves `{ userId, term, timestamp }` to MongoDB, calls Unsplash search, returns results.
-
-Example:
-```
-curl -X POST http://localhost:3000/api/search \
-  -H "Content-Type: application/json" \
-  -d '{"term":"cats"}'
-```
-
-GET /api/top-searches
-- Returns top 5 most frequent terms across all users.
-```
-curl http://localhost:3000/api/top-searches
-```
-
-GET /api/history
-- Returns the logged-in user’s search history with timestamps.
-```
-curl http://localhost:3000/api/history
+# Server: http://localhost:3000
 ```
 
 Auth (server-side OAuth, typical patterns)
@@ -137,9 +104,5 @@ Place screenshots or GIFs under `public/` or in a `/docs` folder and reference t
 - Top Searches banner
 - Search results + multi-select
 - Search history section
-
-License
--------
-MIT
 
 
