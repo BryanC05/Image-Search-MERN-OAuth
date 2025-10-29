@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID || "",
         client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
-        redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/google`,
+        redirect_uri: `${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/api/auth/google`,
         grant_type: "authorization_code",
       }),
     })
@@ -44,9 +44,9 @@ export async function GET(request: NextRequest) {
     await createSession(user._id!.toString())
 
     // Redirect to dashboard
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/dashboard`)
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/dashboard`)
   } catch (error) {
     console.error("Google OAuth error:", error)
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/login?error=oauth_failed`)
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/login?error=oauth_failed`)
   }
 }
