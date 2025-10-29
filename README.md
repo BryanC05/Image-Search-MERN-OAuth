@@ -62,10 +62,7 @@ NEXTAUTH_URL=http://localhost:3000
 4. Copy Client ID and Client Secret
 
 ### Step 3: Run the App
-
-\`\`\`bash
 npm run dev
-\`\`\`
 
 The app will start at `http://localhost:3000`
 
@@ -81,7 +78,6 @@ The app will start at `http://localhost:3000`
 
 ## Project Structure
 
-\`\`\`
 app/
 ├── page.tsx              # Redirects to login/dashboard
 ├── login/
@@ -109,42 +105,3 @@ lib/
 └── models.ts           # Database models
 
 middleware.ts           # Route protection
-\`\`\`
-
-## Troubleshooting
-
-### "Unsplash API key not configured"
-- Make sure `UNSPLASH_ACCESS_KEY` is in `.env.local`
-- Restart the dev server after adding env vars
-
-### "Unauthorized" error
-- Clear your browser cookies
-- Sign in again with an OAuth provider
-
-### MongoDB connection fails
-- Verify your MongoDB URI is correct
-- Check that your IP is whitelisted in MongoDB Atlas
-- Ensure the database name is correct
-
-### OAuth redirect not working
-- Make sure redirect URIs match exactly in OAuth provider settings
-- Use `http://localhost:3000` for local development
-- For production, update to your deployed URL
-
-## Deployment
-
-To deploy to Vercel:
-
-1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Import your GitHub repository
-4. Add environment variables in Project Settings
-5. Deploy!
-
-For production, update `NEXTAUTH_URL` to your deployed domain.
-
-## Need Help?
-
-- Check the [Next.js docs](https://nextjs.org/docs)
-- Review [Unsplash API docs](https://unsplash.com/documentation)
-- Check OAuth provider documentation for your chosen service
