@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         client_id: process.env.GITHUB_CLIENT_ID,
         client_secret: process.env.GITHUB_CLIENT_SECRET,
         code,
-        redirect_uri: `${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/api/auth/github`,
+        redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/github`,
       }),
     })
 
@@ -54,9 +54,9 @@ export async function GET(request: NextRequest) {
     )
     await createSession(user._id!.toString())
 
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/dashboard`)
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/dashboard`)
   } catch (error) {
     console.error("GitHub OAuth error:", error)
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "https://image-search-mern-o-auth.vercel.app"}/login?error=oauth_failed`)
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/login?error=oauth_failed`)
   }
 }
