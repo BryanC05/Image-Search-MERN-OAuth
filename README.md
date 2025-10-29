@@ -8,18 +8,17 @@ This is a **Next.js full-stack application** that requires minimal setup. Everyt
 
 Create a `.env.local` file in the root directory and add your credentials:
 
-\`\`\`env
-# MongoDB Connection (you already have this)
+# MongoDB Connection
 MONGODB_URI=mongodb+srv://becejob_db_user:<db_password>@cluster0.qyugg8m.mongodb.net/?appName=Cluster0
 
-# Unsplash API Key (get from https://unsplash.com/developers)
+# Unsplash API Key (https://unsplash.com/developers)
 UNSPLASH_ACCESS_KEY=your-unsplash-access-key-here
 
-# OAuth - Google (get from https://console.cloud.google.com)
+# OAuth - Google (https://console.cloud.google.com)
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# OAuth - Facebook (get from https://developers.facebook.com)
+# OAuth - Facebook (https://developers.facebook.com)
 NEXT_PUBLIC_FACEBOOK_APP_ID=your-facebook-app-id
 FACEBOOK_APP_SECRET=your-facebook-app-secret
 
