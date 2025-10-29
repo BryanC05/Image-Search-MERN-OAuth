@@ -79,7 +79,7 @@ The app will start at `http://localhost:3000`
 ## Project Structure
 
 app/
-├── page.tsx              # Redirects to login/dashboard
+├── page.tsx             # Redirects to login/dashboard
 ├── login/
 │   └── page.tsx         # OAuth login page
 ├── dashboard/
