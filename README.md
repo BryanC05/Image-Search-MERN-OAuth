@@ -55,9 +55,7 @@ FACEBOOK_CALLBACK_URL=http://localhost:5000/api/auth/facebook/callback
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
-```
-For the Next.js app, define env in `.env.local` at the repo root:
-```
+
 # Unsplash for Next API
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
@@ -72,12 +70,10 @@ Install & Run
 Using the Next.js app (recommended)
 ```
 npm install
-npm dev
+npm dev run
 ```
 - App: http://localhost:3000
 - API routes: http://localhost:3000/api/*
-
-Using the Express server + Vite client
 ```
 cd server && npm install && npm run dev
 # Server: http://localhost:3000
