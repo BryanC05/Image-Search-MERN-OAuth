@@ -62,7 +62,7 @@ For the Next.js app, define env in `.env.local` at the repo root:
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 
 # Session/auth (implementation specific)
-NEXTAUTH_SECRET=your_next_auth_like_secret_or_app_secret
+NEXTAUTH_SECRET=your_next_auth
 MONGODB_URI=mongodb://localhost:27017/image_search_oauth
 BASE_URL=http://localhost:3000
 ```
