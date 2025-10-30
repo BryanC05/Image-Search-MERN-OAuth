@@ -25,8 +25,8 @@ Image-Search-MERN-OAuth/
     api/               # Next API endpoints (auth/session, search, history, top searches)
     dashboard/         # Dashboard UI
     login/             # OAuth login UI
-    globals.css        # Global styles (CSS variables / theme)
-  client/              # Vite React client (optional UI)
+    globals.css        # Global styles (CSS)
+  client/              # Vite React client
     src/
   server/              # Express + Passport.js back end (OAuth + REST)
     routes/            # Express routes for auth/search
@@ -36,7 +36,7 @@ Image-Search-MERN-OAuth/
 
 MONGO_URI=mongodb://localhost:27017/image_search_oauth
 SESSION_SECRET=your-strong-session-secret
-BASE_URL=http://localhost:5000
+BASE_URL=http://localhost:3000
 
 # Unsplash
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
