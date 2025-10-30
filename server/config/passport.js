@@ -10,6 +10,15 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/api/auth/google/callback",
+      proxy: true,
+      auth: {
+        timeout: 10000,
+        tlsOptions: {
+          secureProtocol: 'TLS_method',
+          minVersion: 'TLSv1.2',
+          ciphers: 'HIGH:!aNULL:!MD5'
+        }
+      }
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -39,6 +48,16 @@ passport.use(
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: "/api/auth/facebook/callback",
       profileFields: ["id", "displayName", "photos", "email"],
+      enableProof: true,
+      proxy: true,
+      auth: {
+        timeout: 10000,
+        tlsOptions: {
+          secureProtocol: 'TLS_method',
+          minVersion: 'TLSv1.2',
+          ciphers: 'HIGH:!aNULL:!MD5'
+        }
+      }
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -67,6 +86,15 @@ passport.use(
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "/api/auth/github/callback",
+      proxy: true,
+      auth: {
+        timeout: 10000,
+        tlsOptions: {
+          secureProtocol: 'TLS_method',
+          minVersion: 'TLSv1.2',
+          ciphers: 'HIGH:!aNULL:!MD5'
+        }
+      }
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
