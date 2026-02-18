@@ -1,17 +1,31 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
+import { jwtVerify } from "jose"
+
+const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "your-secret-key-change-this")
+
+async function hasValidSession(request: NextRequest) {
+  const token = request.cookies.get("auth-token")?.value
+  if (!token) return false
+
+  try {
+    await jwtVerify(token, secret)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export async function middleware(request: NextRequest) {
-  const session = await getSession()
+  const isAuthenticated = await hasValidSession(request)
   const pathname = request.nextUrl.pathname
 
   // Protect dashboard routes
-  if (pathname.startsWith("/dashboard") && !session) {
+  if (pathname.startsWith("/dashboard") && !isAuthenticated) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
   // Redirect authenticated users away from login
-  if (pathname === "/login" && session) {
+  if (pathname === "/login" && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
