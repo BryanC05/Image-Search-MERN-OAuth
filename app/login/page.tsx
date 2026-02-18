@@ -9,26 +9,7 @@ export default function LoginPage() {
 
   const handleOAuthLogin = (provider: string) => {
     setIsLoading(true)
-
-    const clientIds = {
-      google: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      facebook: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-      github: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
-    }
-
-    const redirectUris = {
-      google: `${window.location.origin}/api/auth/google`,
-      facebook: `${window.location.origin}/api/auth/facebook`,
-      github: `${window.location.origin}/api/auth/github`,
-    }
-
-    const authUrls = {
-      google: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientIds.google}&redirect_uri=${redirectUris.google}&response_type=code&scope=openid%20email%20profile`,
-      facebook: `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientIds.facebook}&redirect_uri=${redirectUris.facebook}&scope=email,public_profile`,
-      github: `https://github.com/login/oauth/authorize?client_id=${clientIds.github}&redirect_uri=${redirectUris.github}&scope=user:email`,
-    }
-
-    window.location.href = authUrls[provider as keyof typeof authUrls]
+    window.location.href = `/api/auth/${provider}`
   }
 
   return (

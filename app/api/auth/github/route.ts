@@ -3,11 +3,24 @@ import { findOrCreateUser } from "@/lib/models"
 import { createSession } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
+  const baseUrl = request.nextUrl.origin
   const searchParams = request.nextUrl.searchParams
   const code = searchParams.get("code")
+  const clientId = process.env.GITHUB_CLIENT_ID || ""
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET || ""
+  const redirectUri = `${baseUrl}/api/auth/github`
 
   if (!code) {
-    return NextResponse.json({ error: "No authorization code" }, { status: 400 })
+    if (!clientId) {
+      return NextResponse.json({ error: "GitHub OAuth is not configured" }, { status: 500 })
+    }
+
+    const githubAuthUrl = new URL("https://github.com/login/oauth/authorize")
+    githubAuthUrl.searchParams.set("client_id", clientId)
+    githubAuthUrl.searchParams.set("redirect_uri", redirectUri)
+    githubAuthUrl.searchParams.set("scope", "read:user user:email")
+
+    return NextResponse.redirect(githubAuthUrl)
   }
 
   try {
@@ -15,18 +28,21 @@ export async function GET(request: NextRequest) {
     const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
         Accept: "application/json",
       },
-      body: JSON.stringify({
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
         code,
-        redirect_uri: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/github`,
+        redirect_uri: redirectUri,
       }),
     })
 
     const tokenData = await tokenResponse.json()
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      throw new Error(`GitHub token exchange failed: ${JSON.stringify(tokenData)}`)
+    }
 
     // Get user info
     const userResponse = await fetch("https://api.github.com/user", {
@@ -34,6 +50,9 @@ export async function GET(request: NextRequest) {
     })
 
     const userData = await userResponse.json()
+    if (!userResponse.ok || !userData.id) {
+      throw new Error(`GitHub user lookup failed: ${JSON.stringify(userData)}`)
+    }
 
     // Get email if not in user data
     let email = userData.email
@@ -44,6 +63,7 @@ export async function GET(request: NextRequest) {
       const emails = await emailResponse.json()
       email = emails.find((e: any) => e.primary)?.email || emails[0]?.email
     }
+    email = email || `${userData.id}@github.local`
 
     // Find or create user and set session cookie in this response context
     const user = await findOrCreateUser(
@@ -54,9 +74,9 @@ export async function GET(request: NextRequest) {
     )
     await createSession(user._id!.toString())
 
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/dashboard`)
+    return NextResponse.redirect(`${baseUrl}/dashboard`)
   } catch (error) {
     console.error("GitHub OAuth error:", error)
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL || "http://localhost:3000"}/login?error=oauth_failed`)
+    return NextResponse.redirect(`${baseUrl}/login?error=oauth_failed`)
   }
 }

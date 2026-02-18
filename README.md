@@ -70,7 +70,7 @@ Install & Run
 Using the Next.js app (recommended)
 ```
 npm install
-npm dev run
+npm run dev
 ```
 - App: http://localhost:3000
 - API routes: http://localhost:3000/api/*
@@ -84,7 +84,20 @@ Auth (server-side OAuth, typical patterns)
 - GET `/api/auth/facebook` → OAuth login
 - GET `/api/auth/github` → OAuth login
 - POST `/api/auth/logout` → Logout
-
+Vercel Deployment Notes
+-----------------------
+- Configure these Vercel environment variables:
+  - AUTH_SECRET
+  - MONGODB_URI
+  - UNSPLASH_ACCESS_KEY
+  - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+  - FACEBOOK_APP_ID, FACEBOOK_APP_SECRET
+  - GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+- Register callback URLs in each OAuth provider as:
+  - https://<your-domain>/api/auth/google
+  - https://<your-domain>/api/auth/facebook
+  - https://<your-domain>/api/auth/github
+- OAuth routes now use the request origin for callback/redirect URLs, so no localhost fallback is required in Vercel.
 Frontend Behavior
 -----------------
 - Only authenticated users can access search/history. Unauthenticated users are prompted to log in.
@@ -100,3 +113,4 @@ Place screenshots or GIFs under `public/` or in a `/docs` folder and reference t
 - Top Searches banner
 - Search results + multi-select
 - Search history section
+
