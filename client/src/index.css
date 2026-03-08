@@ -1,3 +1,7 @@
+/* Import Victorian Elegance Design System */
+@import './styles/victorian-theme.css';
+
+/* Base Reset - Already in victorian-theme.css */
 * {
   margin: 0;
   padding: 0;
@@ -11,13 +15,31 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-    "Droid Sans", "Helvetica Neue", sans-serif;
-  background-color: #0f0f0f;
-  color: #ffffff;
-  line-height: 1.6;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  background-image: 
+    radial-gradient(ellipse at top, rgba(114, 47, 55, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+  color: var(--victorian-antique-white);
+  line-height: var(--leading-normal);
+  font-size: var(--text-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   height: 100%;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--victorian-gold);
+  letter-spacing: var(--tracking-widest);
+  animation: victorianPulse 1.5s ease-in-out infinite;
 }
