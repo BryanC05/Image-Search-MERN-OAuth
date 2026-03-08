@@ -10,7 +10,7 @@ import SearchHistory from "@/components/search-history";
 import TopSearches from "@/components/top-searches";
 import ImageGrid from "@/components/image-grid";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SaveIcon, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function DashboardPage() {
           setResultCount(
             typeof data.count === "number"
               ? data.count
-              : data.results?.length || 0,
+              : data.results?.length || 0
           );
           setTotalPages(data.total_pages || 1);
           router.push(`/dashboard?q=${encodeURIComponent(query)}`, {
@@ -182,19 +182,13 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="victorian-dashboard-bg min-h-screen pb-20">
-      {/* Victorian Header */}
-      <header className="bg-[var(--victorian-burgundy)] border-b-2 border-[var(--victorian-gold)] sticky top-0 z-50 shadow-lg">
-        <div className="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="victorian-heading text-3xl text-[var(--victorian-gold)] drop-shadow-md">
-              Image Search
-            </h1>
-            <span className="text-[var(--victorian-antique-white)] font-lato text-sm opacity-80">
-              Victorian Edition
-            </span>
-          </div>
-          <div className="flex gap-3">
+    <main className="min-h-screen bg-gradient-to-br from-victorian-cream via-victorian-antique-white to-victorian-cream pb-20">
+      <header className="bg-victorian-burgundy border-b-2 border-victorian-gold sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl victorian-heading text-victorian-gold">
+            Image Search
+          </h1>
+          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -203,26 +197,25 @@ export default function DashboardPage() {
                   router.push("/dashboard", { scroll: false });
                 }
               }}
-              className="font-lato text-[var(--victorian-burgundy)] border-2 border-[var(--victorian-gold)] hover:bg-[var(--victorian-gold)] hover:text-[var(--victorian-burgundy)] bg-transparent transition-all duration-300"
+              className="text-victorian-gold border-victorian-gold hover:bg-victorian-burgundy/80 bg-transparent"
             >
               {showHistory ? "Back to Search" : "View History"}
             </Button>
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="font-lato text-[var(--victorian-burgundy)] border-2 border-[var(--victorian-gold)] hover:bg-[var(--victorian-gold)] hover:text-[var(--victorian-burgundy)] bg-transparent transition-all duration-300"
+              className="text-victorian-gold border-victorian-gold hover:bg-victorian-burgundy/80 bg-transparent"
             >
               Logout
             </Button>
           </div>
         </div>
-        {/* Gold accent strip */}
-        <div className="h-1 bg-gradient-to-r from-[var(--victorian-gold)] via-[var(--victorian-burgundy)] to-[var(--victorian-gold)]" />
       </header>
 
-      <div className="victorian-content-container">
+      <div className="container mx-auto px-4 py-8">
+
         {!showHistory && (
-          <div className="mb-8 victorian-panel">
+          <div className="mb-8">
             <TopSearches />
           </div>
         )}
@@ -233,154 +226,133 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* Victorian Search Bar */}
-            <div className="victorian-search-wrapper">
-              <form onSubmit={handleFormSubmit} className="flex gap-3">
+
+            <Card className="p-6 bg-victorian-cream border-2 border-victorian-gold shadow-xl">
+              <form onSubmit={handleFormSubmit} className="flex gap-2">
                 <Input
                   type="text"
-                  placeholder="Search for vintage images..."
+                  placeholder="Search for images..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 victorian-input font-lato text-[var(--victorian-charcoal)] placeholder:text-[var(--victorian-bronze)]"
+                  className="flex-1 bg-victorian-antique-white border-victorian-gold text-victorian-charcoal placeholder:text-victorian-bronze"
                 />
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="victorian-button-primary font-lato"
+                  className="bg-victorian-burgundy hover:bg-victorian-burgundy-light text-victorian-gold"
                 >
                   {loading ? <Spinner className="w-4 h-4" /> : "Search"}
                 </Button>
               </form>
-            </div>
+            </Card>
 
-            {/* Loading State */}
+
             {loading && (
-              <div className="victorian-loading">
-                <div className="victorian-spinner" />
+              <div className="flex justify-center py-12">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-victorian-gold/30 rounded-full"></div>
+                  <div className="absolute top-0 left-0 w-12 h-12 border-4 border-victorian-burgundy border-t-transparent rounded-full animate-spin"></div>
+                </div>
               </div>
             )}
 
-            {/* Results */}
+
             {!loading && images.length > 0 && (
               <>
-                {/* Results Header with Divider */}
-                <div className="victorian-divider">
-                  <div className="flex items-center justify-between w-full max-w-4xl mx-auto">
-                    <p className="font-lato text-[var(--victorian-charcoal)] text-lg">
-                      Results for{" "}
-                      <span className="victorian-heading text-[var(--victorian-burgundy)]">
-                        "{searchQuery}"
-                      </span>
-                      {typeof resultCount === "number" && (
-                        <span className="victorian-badge ml-3">
-                          {resultCount} total
-                        </span>
-                      )}
-                    </p>
-                    {selectedImages.size > 0 && (
-                      <div className="flex items-center gap-3">
-                        <p className="font-lato text-[var(--victorian-bronze)]" aria-live="polite">
-                          Selected: <span className="victorian-heading text-[var(--victorian-burgundy)]">{selectedImages.size}</span> image{selectedImages.size === 1 ? "" : "s"}
-                        </p>
-                        <Button
-                          onClick={handleSaveSearch}
-                          className="victorian-button-primary flex items-center gap-2 font-lato"
-                        >
-                          <SaveIcon className="w-4 h-4" />
-                          Save Selection
-                        </Button>
-                      </div>
+
+                <div className="flex items-center justify-between">
+                  <p className="text-victorian-charcoal">
+                    Results for{" "}
+                    <span className="victorian-heading text-victorian-burgundy">
+                      {searchQuery}
+                    </span>
+                    {typeof resultCount === "number" && (
+                      <> [{resultCount}] total results</>
                     )}
-                  </div>
+                  </p>
+                  {selectedImages.size > 0 && (
+                    <p className="text-victorian-bronze" aria-live="polite">
+                      Selected: {selectedImages.size} image{selectedImages.size === 1 ? "" : "s"}
+                    </p>
+                  )}
                 </div>
 
-                {/* Image Grid */}
-                <div className="victorian-grid-container">
-                  <ImageGrid
-                    images={images}
-                    selectedImages={selectedImages}
-                    onImageToggle={handleImageToggle}
-                  />
-                </div>
 
-                {/* Load More Button */}
+                <ImageGrid
+                  images={images}
+                  selectedImages={selectedImages}
+                  onImageToggle={handleImageToggle}
+                />
+
+
                 {!loadingMore && currentPage < totalPages && (
-                  <div className="flex justify-center mt-8">
+                  <div className="flex justify-center mt-6">
                     <Button
                       onClick={handleLoadMore}
                       variant="outline"
-                      className="victorian-button-primary px-10 font-lato"
+                      className="text-victorian-burgundy border-victorian-gold hover:bg-victorian-gold/20 bg-transparent px-8"
                     >
                       See More
                     </Button>
                   </div>
                 )}
 
-                {/* Loading More Indicator */}
+
                 {loadingMore && (
                   <div className="flex justify-center py-6">
-                    <div className="victorian-spinner" style={{ width: '48px', height: '48px' }} />
+                    <div className="relative">
+                      <div className="w-8 h-8 border-4 border-victorian-gold/30 rounded-full"></div>
+                      <div className="absolute top-0 left-0 w-8 h-8 border-4 border-victorian-burgundy border-t-transparent rounded-full animate-spin"></div>
+                    </div>
                   </div>
                 )}
 
-                {/* Recent Searches Panel */}
                 {recentSearches.length > 0 && (
-                  <div className="victorian-panel">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h3 className="victorian-heading text-2xl text-[var(--victorian-burgundy)]">
-                        Recent Searches
-                      </h3>
-                      <div className="h-[2px] flex-1 ml-4 bg-gradient-to-r from-[var(--victorian-gold)] to-transparent" />
+                  <Card className="mt-8 p-4 bg-victorian-cream border-2 border-victorian-gold shadow-lg">
+                    <div className="mb-3 flex items-center justify-between">
+                      <h3 className="text-lg victorian-heading text-victorian-burgundy">Recent Searches</h3>
                     </div>
-                    <ul className="space-y-2">
+                    <ul className="divide-y divide-victorian-gold/30">
                       {recentSearches.slice(0, 10).map((s: any) => (
-                        <li key={s._id} className="victorian-list-item flex items-center justify-between">
-                          <span className="font-lato text-[var(--victorian-charcoal)] capitalize">{s.query}</span>
-                          <span className="font-lato text-[var(--victorian-bronze)] text-sm">
-                            {new Date(s.createdAt).toLocaleString()}
-                          </span>
+                        <li key={s._id} className="py-2 flex items-center justify-between">
+                          <span className="text-victorian-charcoal capitalize">{s.query}</span>
+                          <span className="text-victorian-bronze text-sm font-lato">{new Date(s.createdAt).toLocaleString()}</span>
                         </li>
                       ))}
                     </ul>
-                    <div className="victorian-accent-strip" />
-                  </div>
+                  </Card>
                 )}
 
               </>
             )}
 
-            {/* Empty States */}
             {!loading && images.length === 0 && searchQuery && (
-              <div className="victorian-empty-state victorian-panel">
-                <div className="victorian-empty-state-icon">🔍</div>
-                <p className="victorian-empty-state-text victorian-heading">
-                  No images found for "{searchQuery}"
-                </p>
-                <p className="victorian-empty-state-subtext font-lato">
-                  Try a different search term to discover vintage treasures
+              <div className="text-center py-12">
+                <p className="text-victorian-bronze font-lato">
+                  No images found for "{searchQuery}". Try a different search.
                 </p>
               </div>
             )}
 
             {!loading && images.length === 0 && !searchQuery && !showHistory && (
-              <div className="victorian-empty-state victorian-panel">
-                <div className="victorian-empty-state-icon">📚</div>
-                <p className="victorian-empty-state-text victorian-heading">
-                  Welcome to Victorian Image Search
-                </p>
-                <p className="victorian-empty-state-subtext font-lato">
-                  Enter a search term above to discover elegant vintage imagery
+              <div className="text-center py-12">
+                <p className="text-victorian-bronze font-lato">
+                  Enter a search term above to find images.
                 </p>
               </div>
             )}
           </div>
         )}
       </div>
-
-      {/* Victorian Scroll to Top Button */}
       {showScrollTop && !showHistory && (
-        <div className="victorian-scroll-top" onClick={scrollToTop} role="button" aria-label="Scroll to top">
-          <ArrowUp className="w-6 h-6" />
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            onClick={scrollToTop}
+            className="bg-victorian-burgundy hover:bg-victorian-burgundy-light text-victorian-gold rounded-full shadow-lg p-3 h-auto border-2 border-victorian-gold"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </Button>
         </div>
       )}
     </main>
