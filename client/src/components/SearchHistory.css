@@ -1,64 +1,189 @@
+/* Victorian Elegance Search History */
 .search-history {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #2c1810 0%, #1a1a1a 100%);
+  border: 2px solid #D4AF37;
+  border-radius: 6px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    inset 0 0 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.search-history::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 .search-history h3 {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  color: #ccc;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  color: #D4AF37;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 1px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.search-history h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
 }
 
 .no-history {
-  color: #666;
+  color: #999;
   text-align: center;
-  padding: 1rem;
+  padding: 2rem;
+  font-style: italic;
+  font-family: 'Playfair Display', serif;
 }
 
 .history-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
 }
 
 .history-item {
-  background-color: #0f0f0f;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 1rem;
+  background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 4px;
+  padding: 1.25rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.history-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #D4AF37, #722F37);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.history-item:hover::before {
+  opacity: 1;
 }
 
 .history-item:hover {
-  background-color: #1a1a1a;
-  border-color: #667eea;
+  background: linear-gradient(135deg, #2c1810, #1a1a1a);
+  border-color: #D4AF37;
+  transform: translateX(8px);
+  box-shadow: 
+    0 5px 20px rgba(212, 175, 55, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .history-query {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #FAEBD7;
   word-break: break-word;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 .history-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #999;
+  font-family: 'Lato', sans-serif;
 }
 
 .history-count {
-  background-color: #667eea;
-  color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
+  color: #1a1a1a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 .history-date {
   color: #666;
+  font-style: italic;
+}
+
+.history-delete {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(212, 175, 55, 0.5);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.history-item:hover .history-delete {
+  opacity: 1;
+}
+
+.history-delete:hover {
+  color: #B22222;
+  transform: scale(1.2);
+}
+
+.history-item {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+.history-item:nth-child(1) { animation-delay: 0.1s; }
+.history-item:nth-child(2) { animation-delay: 0.15s; }
+.history-item:nth-child(3) { animation-delay: 0.2s; }
+.history-item:nth-child(4) { animation-delay: 0.25s; }
+.history-item:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .search-history {
+    padding: 1.5rem;
+  }
+
+  .history-list {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .history-item:hover {
+    transform: translateX(4px);
+  }
 }
