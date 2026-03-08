@@ -79,7 +79,7 @@ export default function SearchHistory() {
               </Button>
             )}
           </div>
-          
+
           {/* Ornate Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -105,7 +105,7 @@ export default function SearchHistory() {
             <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-victorian-gold rounded-tr-3xl"></div>
             <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-victorian-gold rounded-bl-3xl"></div>
             <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-victorian-gold rounded-br-3xl"></div>
-            
+
             <div className="relative z-10">
               <p className="text-2xl victorian-heading text-victorian-burgundy mb-2">
                 No Search History Yet
@@ -116,7 +116,7 @@ export default function SearchHistory() {
             </div>
           </Card>
         ) : (
-          /* History Grid */}
+          {/* History Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {searches.map((search) => (
               <Card
@@ -133,7 +133,7 @@ export default function SearchHistory() {
               >
                 {/* Left Gold Border Accent */}
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-victorian-gold via-victorian-burgundy to-victorian-gold opacity-80"></div>
-                
+
                 {/* Corner Flourishes */}
                 <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-victorian-gold/60 rounded-tl-xl"></div>
                 <div className="absolute top-2 right-2 w-8 h-8 border-t-2 border-r-2 border-victorian-gold/60 rounded-tr-xl"></div>
@@ -153,7 +153,7 @@ export default function SearchHistory() {
                   <h3 className="font-playfair-display text-xl font-semibold text-victorian-burgundy mb-3 capitalize truncate pr-2">
                     {search.query}
                   </h3>
-                  
+
                   {/* Metadata */}
                   <div className="mb-4 flex items-center gap-2">
                     <span className="inline-flex items-center gap-1 text-sm text-victorian-bronze font-lato">
